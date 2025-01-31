@@ -1,6 +1,8 @@
 from flask import Flask, request, render_template, url_for
 import random
 import string
+import webbrowser
+
 
 app = Flask(__name__)
 
@@ -36,4 +38,6 @@ def encrypt():
     return render_template('index.html', encrypt_result=encrypt_result)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    webbrowser.open_new('http://127.0.0.1:5000')
+    app.run(debug=False)
+
