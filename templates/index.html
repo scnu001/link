@@ -1,0 +1,39 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>链接解密/加密工具</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 50px; }
+        h1 { color: #333; }
+        input[type="text"] { width: 400px; padding: 10px; font-size: 16px; }
+        input[type="submit"] { padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .result { margin-top: 20px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>链接解密工具</h1>
+    <form method="POST" action="{{ url_for('index') }}">
+        <input type="text" name="url" placeholder="请输入加密的链接" required>
+        <input type="submit" value="解密">
+    </form>
+    {% if decrypt_result %}
+    <div class="result">
+        <strong>解密结果：</strong><br>
+        <code>{{ decrypt_result }}</code>
+    </div>
+    {% endif %}
+    
+    <h1>链接加密工具</h1>
+    <form method="POST" action="{{ url_for('encrypt') }}">
+        <input type="text" name="url" placeholder="请输入正常的链接" required>
+        <input type="submit" value="加密">
+    </form>
+    {% if encrypt_result %}
+    <div class="result">
+        <strong>加密结果：</strong><br>
+        <code>{{ encrypt_result }}</code>
+    </div>
+    {% endif %}
+</body>
+</html>
