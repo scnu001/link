@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, url_for
+from flask import Flask, request, render_template, url_for, jsonify
 import random
 import string
 import webbrowser
@@ -17,6 +17,20 @@ def encrypt_url(url):
         else:
             encrypted_url += c
     return encrypted_url
+
+@app.route("/autofill", methods=["POST"])
+def autofill():
+    data = request.form
+    link_type = data.get('link_type', '')
+    user_input = data.get('user_input', '')
+    prefixes = {
+        'magnet': 'magnet:?xt=urn:btih:',
+        'quark': 'https://pan.quark.cn/s/',
+        'pikpak': 'https://mypikpak.com/s/',
+        'baidu': 'https://pan.baidu.com/s/'
+    }
+    prefix = prefixes.get(link_type, '')
+    return jsonify({'full_link': prefix + user_input})
 
 @app.route("/", methods=["GET", "POST"])
 def index():

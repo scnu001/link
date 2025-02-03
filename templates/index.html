@@ -9,7 +9,17 @@
         input[type="text"] { width: 400px; padding: 10px; font-size: 16px; }
         input[type="submit"] { padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; cursor: pointer; }
         .result { margin-top: 20px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; }
+        .copy-btn {
+            padding: 5px 10px;
+            font-size: 14px;
+            background: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
     </style>
+    
 </head>
 <body>
     <h1>链接解密工具</h1>
@@ -21,6 +31,8 @@
     <div class="result">
         <strong>解密结果：</strong><br>
         <code>{{ decrypt_result }}</code>
+        <button class="copy-btn" onclick="copyToClipboard('{{ decrypt_result }}')">复制</button>
+    </div>
     </div>
     {% endif %}
     
@@ -33,7 +45,73 @@
     <div class="result">
         <strong>加密结果：</strong><br>
         <code>{{ encrypt_result }}</code>
+        <button class="copy-btn" onclick="copyToClipboard('{{ encrypt_result }}')">复制</button>
     </div>
     {% endif %}
+    <h2>自动补全链接</h2>
+    <form id="autofill-form" onsubmit="autofillLink(event)">
+        <label for="link-type">选择链接类型:</label>
+        <select id="link-type">
+            <option value="">请选择</option>
+            <option value="magnet">磁链</option>
+            <option value="quark">夸克网盘</option>
+            <option value="pikpak">PikPak</option>
+            <option value="baidu">百度网盘</option>
+        </select>
+        <input type="text" id="user-input" placeholder="输入链接后续部分">
+        <input type="submit" value="补全链接">
+    </form>
+    <div id="autofill-result-container" style="display:none;">
+        <div class="result">
+            <strong>补全结果：</strong><br>
+            <code id="autofill-result"></code>
+            <button class="copy-btn" onclick="copyToAutofillClipboard()">复制</button>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                var successful = document.execCommand('copy');
+                alert('内容已复制到剪切板');
+            } catch (err) {
+                alert('无法复制到剪切板，请手动复制。');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function copyToAutofillClipboard() {
+            var autofillResult = document.getElementById('autofill-result').textContent;
+            copyToClipboard(autofillResult);
+        }
+
+        function autofillLink(event) {
+        event.preventDefault();
+        var linkType = document.getElementById('link-type').value;
+        var userInput = document.getElementById('user-input').value;
+        if (linkType && userInput) {
+            fetch('/autofill', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'link_type=' + encodeURIComponent(linkType) + '&user_input=' + encodeURIComponent(userInput)
+            })
+            .then(response => response.json())
+            .then(data => {
+                var autofillResultContainer = document.getElementById('autofill-result-container');
+                var autofillResult = document.getElementById('autofill-result');
+                autofillResult.textContent = data.full_link;
+                autofillResultContainer.style.display = 'block'; // 显示结果容器
+            });
+        } else {
+            alert('请选择链接类型并输入链接后续部分。');
+        }
+    }
+    </script>
 </body>
 </html>
