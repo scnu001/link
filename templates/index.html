@@ -69,6 +69,28 @@
         </div>
     </div>
 
+    <h1>在emoji表情中插入字符</h1>
+    <div>
+        <label for="text-input">输入文字:</label>
+        <input type="text" id="text-input">
+    </div>
+    
+    <button onclick="handleEncode()">加密</button>
+    <div>
+        <p>Encoded Emoji:</p>
+        <div id="encoded-emoji" style="background-color: #f9f9f9; border: 1px solid #ddd; padding: 15px; margin-top: 10px;"></div>
+    </div>
+    <h1>解密emoji表情</h1>
+    <div>
+        <label for="encoded-emoji-input">Enter Encoded Emoji:</label>
+        <input type="text" id="encoded-emoji-input">
+    </div>
+    <button onclick="handleDecode()">Decode</button>
+    <div>
+        <p>Decoded Text:</p>
+        <div id="decoded-text" style="background-color: #f9f9f9; border: 1px solid #ddd; padding: 15px; margin-top: 10px;"></div>
+    </div>
+
     <script>
         function copyToClipboard(text) {
             var textArea = document.createElement("textarea");
@@ -111,6 +133,58 @@
         } else {
             alert('请选择链接类型并输入链接后续部分。');
         }
+    }
+    // 定义一个包含多个emoji的数组
+    const emojis = ['😀', '😂', '🤣', '😍', '🥰', '😎', '🤓', '😡', '😱', '🤯'];
+
+    // 获取一个随机的emoji
+    function getRandomEmoji() {
+    const randomIndex = Math.floor(Math.random() * emojis.length);
+    return emojis[randomIndex];
+    }
+
+    function textToBinary(text) {
+    return Array.from(text).map(char => char.charCodeAt(0).toString(2).padStart(8, '0')).join('');
+    }
+
+    function binaryToZwj(binaryString) {
+    const zwjMap = {'0': '\u200C', '1': '\u200D'};
+    return binaryString.split('').map(bit => zwjMap[bit]).join('');
+    }
+
+    function zwjToBinary(zwjString) {
+    const zwjMap = {'\u200C': '0', '\u200D': '1'};
+    return zwjString.split('').map(char => zwjMap[char] || '').join('');
+    }
+
+    function binaryToText(binaryString) {
+    return binaryString.match(/.{1,8}/g).map(byte => String.fromCharCode(parseInt(byte, 2))).join('');
+}
+
+    function encodeTextInEmoji(text) {
+    const binaryString = textToBinary(text);
+    const zwjString = binaryToZwj(binaryString);
+    const emoji = getRandomEmoji();
+    return emoji + zwjString;
+    }
+
+    function decodeTextFromEmoji(encodedEmoji) {
+    const zwjString = encodedEmoji.split('').filter(char => char === '\u200C' || char === '\u200D').join('');
+    const binaryString = zwjToBinary(zwjString);
+    return binaryToText(binaryString);
+    }
+
+// 在页面上显示编码和解码的结果
+    function handleEncode() {
+    const text = document.getElementById('text-input').value;
+    const encodedEmoji = encodeTextInEmoji(text);
+    document.getElementById('encoded-emoji').textContent = encodedEmoji;
+    }
+
+    function handleDecode() {
+    const encodedEmoji = document.getElementById('encoded-emoji-input').value;
+    const decodedText = decodeTextFromEmoji(encodedEmoji);
+    document.getElementById('decoded-text').textContent = decodedText;
     }
     </script>
 </body>
